@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="az">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Admin Dashboard & Product</title>
+    <link
+      rel="stylesheet"
+      href="./style.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div id="header_left">
+        <div id="header_left_top">
+          <img
+            id="control"
+            src="./icon/shop-solid-full.svg"
+            alt=""
+          />
+          <h3>Idarəetmə & Məhsul Portalı</h3>
+        </div>
+        <div id="header_left_bottom">
+          <div
+            id="basket"
+            role="button"
+            tabindex="0"
+          >
+            🛒 Səbət
+            <span id="count">0</span>
+          </div>
+          <div id="moon">
+            <span>🌙</span>
+            <span>Qaranlıq</span>
+          </div>
+        </div>
+      </div>
+      <div id="header_right">
+        <button
+          type="button"
+          id="admin_panel"
+          class="active"
+        >
+          ⚙️ Admin Panel
+        </button>
+        <button
+          type="button"
+          id="kataloq"
+        >
+          🛍️ Kataloq / Mağaza
+        </button>
+      </div>
+    </header>
+
+    <div id="page">
+      <div
+        id="adminView"
+        class="view-mode active"
+      >
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Ümumi Məhsul Sayı</h3>
+              <div
+                class="stat-value"
+                id="statTotalProducts"
+              >
+                0
+              </div>
+            </div>
+            <div class="stat-icon total">📦</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Ümumi Stok Dəyəri</h3>
+              <div
+                class="stat-value"
+                id="statTotalValue"
+              >
+                0,00 ₼
+              </div>
+            </div>
+            <div class="stat-icon value">💰</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Stoku Bitişən Məhsullar</h3>
+              <div
+                class="stat-value"
+                id="statOutOfStock"
+              >
+                0
+              </div>
+            </div>
+            <div class="stat-icon out">⚠️</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Ümumi Kateqoriya Sayı</h3>
+              <div
+                class="stat-value"
+                id="statCategoryCount"
+              >
+                0
+              </div>
+            </div>
+            <div class="stat-icon categories">🏷️</div>
+          </div>
+        </section>
+
+        <section class="controls-card">
+          <div class="filter-group">
+            <div class="search-box">
+              <input
+                type="text"
+                id="adminSearchInput"
+                class="form-control"
+                placeholder="Axtarış edin..."
+              />
+            </div>
+            <select
+              id="adminCategoryFilter"
+              class="form-control"
+              style="max-width: 220px"
+            >
+              <option value="">Bütün Kateqoriyalar</option>
+            </select>
+            <select
+              id="adminStatusFilter"
+              class="form-control"
+              style="max-width: 170px"
+            >
+              <option value="">Bütün Statuslar</option>
+              <option value="active">Aktiv</option>
+              <option value="inactive">Deaktiv</option>
+            </select>
+          </div>
+
+          <div class="bulk-actions">
+            <button
+              type="button"
+              id="bulkDeleteBtn"
+              class="btn btn-danger btn-sm"
+              style="display: none"
+            >
+              🗑️ Seçilənləri Sil (<span id="selectedCount">0</span>)
+            </button>
+            <button
+              type="button"
+              id="openAddModalBtn"
+              class="btn btn-primary"
+            >
+              ➕ Yeni Məhsul
+            </button>
+          </div>
+        </section>
+
+        <section
+          id="container_products_list"
+          class="table-container"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px; text-align: center">
+                  <input
+                    type="checkbox"
+                    id="selectAllCheckbox"
+                    class="custom-checkbox"
+                    aria-label="Hamısını seç"
+                  />
+                </th>
+                <th>Məhsul</th>
+                <th>Kateqoriya</th>
+                <th
+                  class="sortable"
+                  id="sortPriceTh"
+                >
+                  Qiymət <span id="sortPriceIcon">↕</span>
+                </th>
+                <th
+                  class="sortable"
+                  id="sortStockTh"
+                >
+                  Stok Sayı <span id="sortStockIcon">↕</span>
+                </th>
+                <th>Status</th>
+                <th style="text-align: right">Əməliyyatlar</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody"></tbody>
+          </table>
+
+          <div
+            id="adminEmptyState"
+            class="empty-state"
+            style="display: none"
+          >
+            <div class="empty-state-icon">🔍</div>
+            <h3>Heç bir məhsul tapılmadı</h3>
+            <p>Axtarış meyarlarını dəyişin və ya yeni məhsul əlavə edin.</p>
+          </div>
+        </section>
+      </div>
+
+      <div
+        id="storeView"
+        class="view-mode"
+      >
+        <main id="top">
+          <aside id="top_left">
+            <input
+              type="text"
+              id="input_search"
+              placeholder="Mağazada məhsul axtar..."
+            />
+          </aside>
+          <aside id="top_right">
+            <select id="all_categories">
+              <option
+                value="all"
+                selected
+              >
+                Bütün Kateqoriyalar
+              </option>
+            </select>
+            <select id="sort">
+              <option value="standart">Sıralama: Standart</option>
+              <option value="low-high">Qiymət: Ucuzdan Bahaya</option>
+              <option value="high-low">Qiymət: Bahadan Ucuza</option>
+            </select>
+          </aside>
+        </main>
+        <div id="products">
+          <div id="productList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="productModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <form
+        id="productForm"
+        class="modal-box"
+        novalidate
+      >
+        <div class="modal-head">
+          <h3 id="modalTitle">Yeni Məhsul Əlavə Et</h3>
+          <button
+            type="button"
+            id="closeModalBtn"
+            class="modal-close"
+            aria-label="Bağla"
+          >
+            ✕
+          </button>
+        </div>
+
+        <input
+          type="hidden"
+          id="productId"
+        />
+
+        <div class="form-group">
+          <label for="formTitle">Məhsul adı</label>
+          <input
+            type="text"
+            id="formTitle"
+            class="form-control"
+          />
+          <div
+            class="error-text"
+            id="errorTitle"
+          ></div>
+        </div>
+
+        <div class="form-group">
+          <label for="formCategory">Kateqoriya</label>
+          <select
+            id="formCategory"
+            class="form-control"
+          >
+            <option value="">Kateqoriya seçin</option>
+          </select>
+          <div
+            class="error-text"
+            id="errorCategory"
+          ></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="formPrice">Qiymət (₼)</label>
+            <input
+              type="number"
+              id="formPrice"
+              class="form-control"
+              min="0"
+              step="0.01"
+            />
+            <div
+              class="error-text"
+              id="errorPrice"
+            ></div>
+          </div>
+          <div class="form-group">
+            <label for="formStock">Stok sayı</label>
+            <input
+              type="number"
+              id="formStock"
+              class="form-control"
+              min="0"
+              step="1"
+            />
+            <div
+              class="error-text"
+              id="errorStock"
+            ></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="formImage">Şəkil linki (istəyə bağlı)</label>
+          <input
+            type="text"
+            id="formImage"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="formStatus"
+              checked
+            />
+            <span class="slider"></span>
+            <span id="statusLabel">Status: Aktiv</span>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="cancelModalBtn"
+            class="btn btn-secondary"
+          >
+            Ləğv et
+          </button>
+          <button
+            type="submit"
+            id="saveProductBtn"
+            class="btn btn-primary"
+          >
+            Əlavə Et
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      id="deleteModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deleteTitle"
+    >
+      <div class="modal-box small">
+        <div class="modal-head">
+          <h3 id="deleteTitle">Silinmə təsdiqi</h3>
+        </div>
+        <p
+          class="modal-text"
+          id="deleteText"
+        ></p>
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="cancelDeleteBtn"
+            class="btn btn-secondary"
+          >
+            Ləğv et
+          </button>
+          <button
+            type="button"
+            id="confirmDeleteBtn"
+            class="btn btn-danger"
+          >
+            Sil
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="basketModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="basketTitle"
+    >
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="basketTitle">Səbət</h3>
+          <button
+            type="button"
+            id="closeBasketBtn"
+            class="modal-close"
+            aria-label="Bağla"
+          >
+            ✕
+          </button>
+        </div>
+        <div id="basketItems"></div>
+        <div class="basket-total">
+          <span>Cəmi:</span>
+          <strong id="basketTotal">0,00 ₼</strong>
+        </div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="clearBasketBtn"
+            class="btn btn-secondary"
+          >
+            Səbəti təmizlə
+          </button>
+        </div>
+      </div>
+    </div>
+    <script
+      src="./main.js"
+      type="module"
+    ></script>
+  </body>
+</html>
